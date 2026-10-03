@@ -2,18 +2,17 @@ package com.clinica.clinica_backend.dto;
 
 public class LoginResponse {
 
-    private int idUsuario;
-    private String correo;
-    private String rol;
-    private String nombre;
-    private String apellido;
-    private String token;
-    
-    public LoginResponse() {
-    }
+	private int idUsuario;
+	private String correo;
+	private String rol;
+	private String nombre;
+	private String apellido;
+	private String token;
+
+	public LoginResponse() {
+	}
 
 	public LoginResponse(int idUsuario, String correo, String rol, String nombre, String apellido, String token) {
-		super();
 		this.idUsuario = idUsuario;
 		this.correo = correo;
 		this.rol = rol;
@@ -70,5 +69,4 @@ public class LoginResponse {
 		this.token = token;
 	}
 
-    
 }

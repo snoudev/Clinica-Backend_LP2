@@ -24,5 +24,39 @@ public class JwtService {
                 .signWith(Keys.hmacShaKeyFor(claveSecreta.getBytes()))
                 .compact();
     }
-    
-}
+
+    public String extraerCorreo(String token) {
+
+        return Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(claveSecreta.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    public boolean validarToken(String token, String correo) {
+
+        try {
+            String correoDelToken = extraerCorreo(token);
+
+            return correoDelToken.equals(correo)
+                    && !estaExpirado(token);
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean estaExpirado(String token) {
+
+        Date fechaExpiracion = Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(claveSecreta.getBytes()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
+
+        return fechaExpiracion.before(new Date());
+    }
+} 
