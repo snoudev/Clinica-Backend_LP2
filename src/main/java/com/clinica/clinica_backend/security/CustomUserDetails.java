@@ -10,7 +10,11 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final Usuario usuario;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final Usuario usuario;
 
     public CustomUserDetails(Usuario usuario) {
         this.usuario = usuario;
