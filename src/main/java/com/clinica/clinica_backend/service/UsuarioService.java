@@ -4,6 +4,7 @@ import com.clinica.clinica_backend.dto.LoginRequest;
 import com.clinica.clinica_backend.dto.LoginResponse;
 import com.clinica.clinica_backend.dto.UsuarioResponse;
 import java.util.List;
+import com.clinica.clinica_backend.exception.RecursoNoEncontradoException;
 import com.clinica.clinica_backend.entity.Usuario;
 import com.clinica.clinica_backend.repository.UsuarioRepository;
 import com.clinica.clinica_backend.security.JwtService;
@@ -57,6 +58,13 @@ public class UsuarioService {
                 .stream()
                 .map(this::aRespuesta)
                 .toList();
+    }
+
+    public UsuarioResponse buscarPorId(int id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un usuario con id " + id));
+
+        return aRespuesta(usuario);
     }
 
     private UsuarioResponse aRespuesta(Usuario usuario) {

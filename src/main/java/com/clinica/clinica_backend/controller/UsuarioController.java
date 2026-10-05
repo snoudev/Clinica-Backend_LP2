@@ -37,6 +37,12 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.listar());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable int id) {
+
+        return ResponseEntity.ok(usuarioService.buscarPorId(id));
+    }
+
     @GetMapping("/perfil")
     public ResponseEntity<Map<String, Object>> perfil(Authentication authentication) {
         return ResponseEntity.ok(Map.of(
