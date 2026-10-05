@@ -2,6 +2,8 @@ package com.clinica.clinica_backend.service;
 
 import com.clinica.clinica_backend.dto.LoginRequest;
 import com.clinica.clinica_backend.dto.LoginResponse;
+import com.clinica.clinica_backend.dto.UsuarioResponse;
+import java.util.List;
 import com.clinica.clinica_backend.entity.Usuario;
 import com.clinica.clinica_backend.repository.UsuarioRepository;
 import com.clinica.clinica_backend.security.JwtService;
@@ -49,4 +51,23 @@ public class UsuarioService {
                 token
         );
     }
+
+    public List<UsuarioResponse> listar() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(this::aRespuesta)
+                .toList();
+    }
+
+    private UsuarioResponse aRespuesta(Usuario usuario) {
+        return new UsuarioResponse(
+                usuario.getIdUsuario(),
+                usuario.getEmpleado().getIdEmpleado(),
+                usuario.getEmpleado().getNombre() + " " + usuario.getEmpleado().getApellido(),
+                usuario.getCorreo(),
+                usuario.getRol().getNombreRol(),
+                usuario.isEstado(),
+                usuario.getCreadoEn()
+        );
+    }	
 }
