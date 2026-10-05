@@ -1,5 +1,6 @@
 package com.clinica.clinica_backend.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -22,5 +23,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> datosInvalidos(MethodArgumentNotValidException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("mensaje", "Ingresa un correo válido y una contraseña"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> datoDuplicado(DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("mensaje", "Ya existe un registro con esos datos (por ejemplo, un nombre repetido)"));
     }
 }
