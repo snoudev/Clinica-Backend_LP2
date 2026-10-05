@@ -9,7 +9,7 @@ public class Especialidad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_especialidad")
-    private int idEspecialidad;
+    private Integer idEspecialidad;
 
     @Column(name = "nombre")
     private String nombre;
@@ -23,42 +23,43 @@ public class Especialidad {
     public Especialidad() {
     }
 
-    public Especialidad(int idEspecialidad, String nombre, String descripcion, boolean estado) {
-        this.idEspecialidad = idEspecialidad;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.estado = estado;
-    }
+	public Especialidad(Integer idEspecialidad, String nombre, String descripcion, boolean estado) {
+		super();
+		this.idEspecialidad = idEspecialidad;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.estado = estado;
+	}
 
-    public int getIdEspecialidad() {
-        return idEspecialidad;
-    }
+	public Integer getIdEspecialidad() {
+		return idEspecialidad;
+	}
 
-    public void setIdEspecialidad(int idEspecialidad) {
-        this.idEspecialidad = idEspecialidad;
-    }
+	public void setIdEspecialidad(Integer idEspecialidad) {
+		this.idEspecialidad = idEspecialidad;
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+	public String getDescripcion() {
+		return descripcion;
+	}
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 
-    public boolean isEstado() {
-        return estado;
-    }
+	public boolean isEstado() {
+		return estado;
+	}
 
-    public void setEstado(boolean estado) {
-        this.estado = estado;
-    }
+	public void setEstado(boolean estado) {
+		this.estado = estado;
+	}
 }
