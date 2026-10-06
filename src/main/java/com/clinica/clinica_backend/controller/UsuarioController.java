@@ -2,10 +2,12 @@ package com.clinica.clinica_backend.controller;
 
 import com.clinica.clinica_backend.dto.LoginRequest;
 import com.clinica.clinica_backend.dto.LoginResponse;
+import com.clinica.clinica_backend.dto.UsuarioRequest;
 import com.clinica.clinica_backend.dto.UsuarioResponse;
 import java.util.List;
 import com.clinica.clinica_backend.service.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,6 +43,14 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable int id) {
 
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<UsuarioResponse> crear(@Valid @RequestBody UsuarioRequest request) {
+
+        UsuarioResponse response = usuarioService.crear(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/perfil")

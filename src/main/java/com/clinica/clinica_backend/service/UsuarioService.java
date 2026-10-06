@@ -2,15 +2,24 @@ package com.clinica.clinica_backend.service;
 
 import com.clinica.clinica_backend.dto.LoginRequest;
 import com.clinica.clinica_backend.dto.LoginResponse;
+import com.clinica.clinica_backend.dto.UsuarioRequest;
 import com.clinica.clinica_backend.dto.UsuarioResponse;
-import java.util.List;
-import com.clinica.clinica_backend.exception.RecursoNoEncontradoException;
+import com.clinica.clinica_backend.entity.Empleado;
+import com.clinica.clinica_backend.entity.Rol;
 import com.clinica.clinica_backend.entity.Usuario;
+import com.clinica.clinica_backend.exception.ConflictoException;
+import com.clinica.clinica_backend.exception.RecursoNoEncontradoException;
+import com.clinica.clinica_backend.repository.EmpleadoRepository;
+import com.clinica.clinica_backend.repository.RolRepository;
 import com.clinica.clinica_backend.repository.UsuarioRepository;
 import com.clinica.clinica_backend.security.JwtService;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,20 +27,29 @@ public class UsuarioService {
 
     private final AuthenticationManager authenticationManager;
     private final UsuarioRepository usuarioRepository;
+    private final EmpleadoRepository empleadoRepository;
+    private final RolRepository rolRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    
+
     public UsuarioService(
             AuthenticationManager authenticationManager,
             UsuarioRepository usuarioRepository,
+            EmpleadoRepository empleadoRepository,
+            RolRepository rolRepository,
+            PasswordEncoder passwordEncoder,
             JwtService jwtService) {
 
         this.authenticationManager = authenticationManager;
         this.usuarioRepository = usuarioRepository;
+        this.empleadoRepository = empleadoRepository;
+        this.rolRepository = rolRepository;
+        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
     public LoginResponse login(LoginRequest request) {
-    	
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getCorreo(),
@@ -67,6 +85,33 @@ public class UsuarioService {
         return aRespuesta(usuario);
     }
 
+    public UsuarioResponse crear(UsuarioRequest request) {
+
+        Empleado empleado = empleadoRepository.findById(request.idEmpleado())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un empleado con ese id."));
+
+        Rol rol = rolRepository.findById(request.idRol())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un rol con ese id."));
+
+        if (usuarioRepository.existsByCorreo(request.correo())) {
+            throw new ConflictoException("Ya existe un usuario con ese correo.");
+        }
+
+        if (usuarioRepository.existsByEmpleadoIdEmpleado(request.idEmpleado())) {
+            throw new ConflictoException("Ese empleado ya tiene un usuario asignado.");
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setEmpleado(empleado);
+        usuario.setRol(rol);
+        usuario.setCorreo(request.correo());
+        usuario.setContrasenaHash(passwordEncoder.encode(request.password()));
+        usuario.setEstado(true);
+        usuario.setCreadoEn(LocalDateTime.now());
+
+        return aRespuesta(usuarioRepository.save(usuario));
+    }
+
     private UsuarioResponse aRespuesta(Usuario usuario) {
         return new UsuarioResponse(
                 usuario.getIdUsuario(),
@@ -77,5 +122,5 @@ public class UsuarioService {
                 usuario.isEstado(),
                 usuario.getCreadoEn()
         );
-    }	
+    }
 }
