@@ -12,6 +12,7 @@ public record EmpleadoResponse(
         String apellido,
         String dni,
         String telefono,
+        String turno,
         boolean estado
 ) {
 
@@ -35,6 +36,7 @@ public record EmpleadoResponse(
                 empleado.getApellido(),
                 empleado.getDni(),
                 empleado.getTelefono(),
+                empleado.getTurno(),
                 empleado.isEstado()
         );
     }

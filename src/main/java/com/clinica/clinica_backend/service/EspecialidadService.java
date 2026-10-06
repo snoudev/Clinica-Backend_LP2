@@ -1,11 +1,13 @@
 package com.clinica.clinica_backend.service;
 
 import com.clinica.clinica_backend.entity.Especialidad;
+import com.clinica.clinica_backend.exception.ConflictoException;
+import com.clinica.clinica_backend.exception.RecursoNoEncontradoException;
 import com.clinica.clinica_backend.repository.EspecialidadRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EspecialidadService {
@@ -20,8 +22,10 @@ public class EspecialidadService {
         return especialidadRepository.findAll();
     }
 
-    public Optional<Especialidad> buscarPorId(int id) {
-        return especialidadRepository.findById(id);
+    public Especialidad buscarPorId(int id) {
+        return especialidadRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe una especialidad con id " + id));
     }
 
     public List<Especialidad> listarActivas() {
@@ -29,38 +33,41 @@ public class EspecialidadService {
     }
 
     public Especialidad guardar(Especialidad especialidad) {
+
+        if (especialidadRepository.existsByNombre(especialidad.getNombre())) {
+            throw new ConflictoException(
+                    "Ya existe una especialidad con ese nombre");
+        }
+
+        especialidad.setNombre(especialidad.getNombre().trim());
+
         return especialidadRepository.save(especialidad);
     }
 
-    public Optional<Especialidad> actualizar(int id, Especialidad especialidad) {
-    	
-        Optional<Especialidad> existente = especialidadRepository.findById(id);
+    public Especialidad actualizar(int id, Especialidad especialidad) {
 
-        if (existente.isPresent()) {
-            Especialidad actual = existente.get();
+        Especialidad actual = buscarPorId(id);
 
-            actual.setNombre(especialidad.getNombre());
-            actual.setDescripcion(especialidad.getDescripcion());
-            actual.setEstado(especialidad.isEstado());
+        if (!actual.getNombre().equalsIgnoreCase(especialidad.getNombre())
+                && especialidadRepository.existsByNombre(especialidad.getNombre())) {
 
-            return Optional.of(especialidadRepository.save(actual));
+            throw new ConflictoException(
+                    "Ya existe una especialidad con ese nombre");
         }
 
-        return Optional.empty();
+        actual.setNombre(especialidad.getNombre().trim());
+        actual.setDescripcion(especialidad.getDescripcion());
+        actual.setEstado(especialidad.isEstado());
+
+        return especialidadRepository.save(actual);
     }
 
-    public Optional<Especialidad> cambiarEstado(int id) {
-    	
-        Optional<Especialidad> existente = especialidadRepository.findById(id);
+    public Especialidad cambiarEstado(int id) {
 
-        if (existente.isPresent()) {
-            Especialidad especialidad = existente.get();
+        Especialidad especialidad = buscarPorId(id);
 
-            especialidad.setEstado(!especialidad.isEstado());
+        especialidad.setEstado(!especialidad.isEstado());
 
-            return Optional.of(especialidadRepository.save(especialidad));
-        }
-
-        return Optional.empty();
+        return especialidadRepository.save(especialidad);
     }
 }

@@ -13,135 +13,161 @@ import com.clinica.clinica_backend.repository.EmpleadoRepository;
 import com.clinica.clinica_backend.repository.EspecialidadRepository;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class EmpleadoService {
 
-    private static final String CARGO_MEDICO = "MEDICO";
+	private static final String CARGO_MEDICO = "MEDICO";
+	private static final String CARGO_RECEPCIONISTA = "RECEPCIONISTA";
 
-    private final EmpleadoRepository empleadoRepository;
-    private final CargoRepository cargoRepository;
-    private final EspecialidadRepository especialidadRepository;
+	private static final String TURNO_DIURNO = "DIURNO";
+	private static final String TURNO_NOCTURNO = "NOCTURNO";
 
-    public EmpleadoService(
-            EmpleadoRepository empleadoRepository,
-            CargoRepository cargoRepository,
-            EspecialidadRepository especialidadRepository) {
+	private final EmpleadoRepository empleadoRepository;
+	private final CargoRepository cargoRepository;
+	private final EspecialidadRepository especialidadRepository;
 
-        this.empleadoRepository = empleadoRepository;
-        this.cargoRepository = cargoRepository;
-        this.especialidadRepository = especialidadRepository;
-    }
+	public EmpleadoService(EmpleadoRepository empleadoRepository, CargoRepository cargoRepository,
+			EspecialidadRepository especialidadRepository) {
 
-    @Transactional
-    public EmpleadoResponse registrar(EmpleadoRequest request) {
+		this.empleadoRepository = empleadoRepository;
+		this.cargoRepository = cargoRepository;
+		this.especialidadRepository = especialidadRepository;
+	}
 
-        if (empleadoRepository.existsByDni(request.dni())) {
-            throw new ConflictoException("Ya existe un empleado con el DNI " + request.dni());
-        }
+	public EmpleadoResponse registrar(EmpleadoRequest request) {
 
-        Empleado empleado = new Empleado();
-        empleado.setEstado(true);
-        aplicarDatos(empleado, request);
+		if (empleadoRepository.existsByDni(request.dni())) {
+			throw new ConflictoException("Ya existe un empleado con el DNI " + request.dni());
+		}
 
-        return EmpleadoResponse.desde(empleadoRepository.save(empleado));
-    }
+		Empleado empleado = new Empleado();
+		empleado.setEstado(true);
 
-    @Transactional(readOnly = true)
-    public List<EmpleadoResponse> listar() {
-        return empleadoRepository.findAll()
-                .stream()
-                .map(EmpleadoResponse::desde)
-                .toList();
-    }
+		aplicarDatos(empleado, request);
 
-    @Transactional(readOnly = true)
-    public EmpleadoResponse obtenerPorId(int id) {
-        return EmpleadoResponse.desde(buscarEmpleado(id));
-    }
+		return EmpleadoResponse.desde(empleadoRepository.save(empleado));
+	}
 
-    @Transactional
-    public EmpleadoResponse actualizar(int id, EmpleadoRequest request) {
+	public List<EmpleadoResponse> listar() {
 
-        Empleado empleado = buscarEmpleado(id);
+		return empleadoRepository.findAll().stream().map(EmpleadoResponse::desde).toList();
+	}
 
-        if (empleadoRepository.existsByDniAndIdEmpleadoNot(request.dni(), id)) {
-            throw new ConflictoException("Ya existe otro empleado con el DNI " + request.dni());
-        }
+	public EmpleadoResponse obtenerPorId(int id) {
 
-        aplicarDatos(empleado, request);
+		return EmpleadoResponse.desde(buscarEmpleado(id));
+	}
 
-        return EmpleadoResponse.desde(empleadoRepository.save(empleado));
-    }
+	public EmpleadoResponse actualizar(int id, EmpleadoRequest request) {
 
-    @Transactional
-    public EmpleadoResponse cambiarEstado(int id, boolean estado) {
+		Empleado empleado = buscarEmpleado(id);
 
-        Empleado empleado = buscarEmpleado(id);
-        empleado.setEstado(estado);
+		if (empleadoRepository.existsByDniAndIdEmpleadoNot(request.dni(), id)) {
 
-        return EmpleadoResponse.desde(empleadoRepository.save(empleado));
-    }
+			throw new ConflictoException("Ya existe otro empleado con el DNI " + request.dni());
+		}
 
-    @Transactional(readOnly = true)
-    public List<EmpleadoResponse> listarMedicos(Integer idEspecialidad) {
+		aplicarDatos(empleado, request);
 
-        List<Empleado> medicos;
+		return EmpleadoResponse.desde(empleadoRepository.save(empleado));
+	}
 
-        if (idEspecialidad == null) {
-            medicos = empleadoRepository.findByCargoNombreCargoAndEstadoTrue(CARGO_MEDICO);
-        } else {
-            medicos = empleadoRepository
-                    .findByCargoNombreCargoAndEstadoTrueAndEspecialidadIdEspecialidad(
-                            CARGO_MEDICO, idEspecialidad);
-        }
+	public EmpleadoResponse cambiarEstado(int id, boolean estado) {
 
-        return medicos.stream()
-                .map(EmpleadoResponse::desde)
-                .toList();
-    }
+		Empleado empleado = buscarEmpleado(id);
 
-    private Empleado buscarEmpleado(int id) {
-        return empleadoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe un empleado con id " + id));
-    }
+		empleado.setEstado(estado);
 
-    private void aplicarDatos(Empleado empleado, EmpleadoRequest request) {
+		return EmpleadoResponse.desde(empleadoRepository.save(empleado));
+	}
 
-        Cargo cargo = cargoRepository.findById(request.idCargo())
-                .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe un cargo con id " + request.idCargo()));
+	public List<EmpleadoResponse> listarMedicos(Integer idEspecialidad) {
 
-        Especialidad especialidad = null;
-        boolean esMedico = CARGO_MEDICO.equalsIgnoreCase(cargo.getNombreCargo());
+		List<Empleado> medicos;
 
-        if (esMedico) {
+		if (idEspecialidad == null) {
 
-            if (request.idEspecialidad() == null) {
-                throw new SolicitudInvalidaException("Un médico debe tener una especialidad");
-            }
+			medicos = empleadoRepository.findByCargoNombreCargoAndEstadoTrue(CARGO_MEDICO);
 
-            especialidad = especialidadRepository.findById(request.idEspecialidad())
-                    .orElseThrow(() -> new RecursoNoEncontradoException(
-                            "No existe una especialidad con id " + request.idEspecialidad()));
+		} else {
 
-            if (!especialidad.isEstado()) {
-                throw new SolicitudInvalidaException("La especialidad seleccionada está inactiva");
-            }
+			medicos = empleadoRepository.findByCargoNombreCargoAndEstadoTrueAndEspecialidadIdEspecialidad(CARGO_MEDICO,
+					idEspecialidad);
+		}
 
-        } else if (request.idEspecialidad() != null) {
-            throw new SolicitudInvalidaException("Solo los médicos pueden tener una especialidad");
-        }
+		return medicos.stream().map(EmpleadoResponse::desde).toList();
+	}
 
-        empleado.setCargo(cargo);
-        empleado.setEspecialidad(especialidad);
-        empleado.setNombre(request.nombre().trim());
-        empleado.setApellido(request.apellido().trim());
-        empleado.setDni(request.dni());
-        empleado.setTelefono(request.telefono());
-    }
+	private Empleado buscarEmpleado(int id) {
+
+		return empleadoRepository.findById(id)
+				.orElseThrow(() -> new RecursoNoEncontradoException("No existe un empleado con id " + id));
+	}
+
+	private void aplicarDatos(Empleado empleado, EmpleadoRequest request) {
+
+		Cargo cargo = cargoRepository.findById(request.idCargo())
+				.orElseThrow(() -> new RecursoNoEncontradoException("No existe un cargo con id " + request.idCargo()));
+
+		Especialidad especialidad = null;
+
+		boolean esMedico = CARGO_MEDICO.equalsIgnoreCase(cargo.getNombreCargo());
+
+		boolean esRecepcionista = CARGO_RECEPCIONISTA.equalsIgnoreCase(cargo.getNombreCargo());
+
+		if (esMedico) {
+
+			if (request.idEspecialidad() == null) {
+				throw new SolicitudInvalidaException("Un médico debe tener una especialidad");
+			}
+
+			especialidad = especialidadRepository.findById(request.idEspecialidad())
+					.orElseThrow(() -> new RecursoNoEncontradoException(
+							"No existe una especialidad con id " + request.idEspecialidad()));
+
+			if (!especialidad.isEstado()) {
+				throw new SolicitudInvalidaException("La especialidad seleccionada está inactiva");
+			}
+
+		} else if (request.idEspecialidad() != null) {
+
+			throw new SolicitudInvalidaException("Solo los médicos pueden tener una especialidad");
+		}
+
+		if (esMedico || esRecepcionista) {
+
+			if (request.turno() == null || request.turno().isBlank()) {
+
+				throw new SolicitudInvalidaException("El turno es obligatorio para médicos y recepcionistas");
+			}
+
+			String turno = request.turno().trim().toUpperCase();
+
+			if (!TURNO_DIURNO.equals(turno) && !TURNO_NOCTURNO.equals(turno)) {
+
+				throw new SolicitudInvalidaException("El turno debe ser DIURNO o NOCTURNO");
+			}
+
+			empleado.setTurno(turno);
+
+		} else {
+
+			if (request.turno() != null && !request.turno().isBlank()) {
+
+				throw new SolicitudInvalidaException("Los empleados administrativos no tienen turno");
+			}
+
+			empleado.setTurno(null);
+		}
+
+		empleado.setCargo(cargo);
+		empleado.setEspecialidad(especialidad);
+		empleado.setNombre(request.nombre().trim());
+		empleado.setApellido(request.apellido().trim());
+		empleado.setDni(request.dni());
+		empleado.setTelefono(request.telefono());
+	}
 }

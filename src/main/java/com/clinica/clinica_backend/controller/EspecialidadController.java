@@ -12,54 +12,48 @@ import java.util.List;
 @RequestMapping("/especialidades")
 public class EspecialidadController {
 
-    private final EspecialidadService especialidadService;
+	private final EspecialidadService especialidadService;
 
-    public EspecialidadController(EspecialidadService especialidadService) {
-        this.especialidadService = especialidadService;
-    }
+	public EspecialidadController(EspecialidadService especialidadService) {
+		this.especialidadService = especialidadService;
+	}
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @GetMapping
-    public ResponseEntity<List<Especialidad>> listarTodas() {
-        return ResponseEntity.ok(especialidadService.listarTodas());
-    }
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@GetMapping
+	public ResponseEntity<List<Especialidad>> listarTodas() {
+		return ResponseEntity.ok(especialidadService.listarTodas());
+	}
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @GetMapping("/{id}")
-    public ResponseEntity<Especialidad> buscarPorId(@PathVariable int id) {
-        return especialidadService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@GetMapping("/{id}")
+	public ResponseEntity<Especialidad> buscarPorId(@PathVariable int id) {
+		return ResponseEntity.ok(especialidadService.buscarPorId(id));
+	}
 
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'AGENTE_VENTANILLA')")
-    @GetMapping("/activas")
-    public ResponseEntity<List<Especialidad>> listarActivas() {
-        return ResponseEntity.ok(especialidadService.listarActivas());
-    }
+	@PreAuthorize("hasAnyRole('ADMINISTRADOR', 'AGENTE_VENTANILLA')")
+	@GetMapping("/activas")
+	public ResponseEntity<List<Especialidad>> listarActivas() {
+		return ResponseEntity.ok(especialidadService.listarActivas());
+	}
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
-    public ResponseEntity<Especialidad> registrar(@RequestBody Especialidad especialidad) {
-        return ResponseEntity.ok(especialidadService.guardar(especialidad));
-    }
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PostMapping
+	public ResponseEntity<Especialidad> registrar(@RequestBody Especialidad especialidad) {
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
-    public ResponseEntity<Especialidad> actualizar(
-            @PathVariable int id,
-            @RequestBody Especialidad especialidad) {
+		return ResponseEntity.ok(especialidadService.guardar(especialidad));
+	}
 
-        return especialidadService.actualizar(id, especialidad)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PutMapping("/{id}")
+	public ResponseEntity<Especialidad> actualizar(@PathVariable int id, @RequestBody Especialidad especialidad) {
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PatchMapping("/{id}/estado")
-    public ResponseEntity<Especialidad> cambiarEstado(@PathVariable int id) {
-        return especialidadService.cambiarEstado(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+		return ResponseEntity.ok(especialidadService.actualizar(id, especialidad));
+	}
+
+	@PreAuthorize("hasRole('ADMINISTRADOR')")
+	@PatchMapping("/{id}/estado")
+	public ResponseEntity<Especialidad> cambiarEstado(@PathVariable int id) {
+
+		return ResponseEntity.ok(especialidadService.cambiarEstado(id));
+	}
 }
