@@ -25,6 +25,8 @@ public record EmpleadoRequest(
         String dni,
 
         @Size(max = 20, message = "El teléfono no puede superar los 20 caracteres")
-        String telefono
+        String telefono,
+
+        String turno
 ) {
 }
