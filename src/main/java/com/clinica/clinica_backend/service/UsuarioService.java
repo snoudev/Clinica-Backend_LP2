@@ -2,6 +2,8 @@ package com.clinica.clinica_backend.service;
 
 import com.clinica.clinica_backend.dto.LoginRequest;
 import com.clinica.clinica_backend.dto.LoginResponse;
+import com.clinica.clinica_backend.dto.PasswordRequest;
+import com.clinica.clinica_backend.dto.UsuarioActualizarRequest;
 import com.clinica.clinica_backend.dto.UsuarioRequest;
 import com.clinica.clinica_backend.dto.UsuarioResponse;
 import com.clinica.clinica_backend.entity.Empleado;
@@ -79,10 +81,7 @@ public class UsuarioService {
     }
 
     public UsuarioResponse buscarPorId(int id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un usuario con id " + id));
-
-        return aRespuesta(usuario);
+        return aRespuesta(buscarEntidad(id));
     }
 
     public UsuarioResponse crear(UsuarioRequest request) {
@@ -110,6 +109,44 @@ public class UsuarioService {
         usuario.setCreadoEn(LocalDateTime.now());
 
         return aRespuesta(usuarioRepository.save(usuario));
+    }
+
+    public UsuarioResponse actualizar(int id, UsuarioActualizarRequest request) {
+
+        Usuario usuario = buscarEntidad(id);
+
+        Rol rol = rolRepository.findById(request.idRol())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un rol con ese id."));
+
+        if (usuarioRepository.existsByCorreoAndIdUsuarioNot(request.correo(), id)) {
+            throw new ConflictoException("Ya existe un usuario con ese correo.");
+        }
+
+        usuario.setRol(rol);
+        usuario.setCorreo(request.correo());
+
+        return aRespuesta(usuarioRepository.save(usuario));
+    }
+
+    public UsuarioResponse cambiarEstado(int id, boolean estado) {
+
+        Usuario usuario = buscarEntidad(id);
+        usuario.setEstado(estado);
+
+        return aRespuesta(usuarioRepository.save(usuario));
+    }
+
+    public void cambiarPassword(int id, PasswordRequest request) {
+
+        Usuario usuario = buscarEntidad(id);
+        usuario.setContrasenaHash(passwordEncoder.encode(request.password()));
+
+        usuarioRepository.save(usuario);
+    }
+
+    private Usuario buscarEntidad(int id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un usuario con id " + id + "."));
     }
 
     private UsuarioResponse aRespuesta(Usuario usuario) {

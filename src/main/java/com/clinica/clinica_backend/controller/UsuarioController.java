@@ -1,7 +1,10 @@
 package com.clinica.clinica_backend.controller;
 
+import com.clinica.clinica_backend.dto.EstadoRequest;
 import com.clinica.clinica_backend.dto.LoginRequest;
 import com.clinica.clinica_backend.dto.LoginResponse;
+import com.clinica.clinica_backend.dto.PasswordRequest;
+import com.clinica.clinica_backend.dto.UsuarioActualizarRequest;
 import com.clinica.clinica_backend.dto.UsuarioRequest;
 import com.clinica.clinica_backend.dto.UsuarioResponse;
 import java.util.List;
@@ -51,6 +54,32 @@ public class UsuarioController {
         UsuarioResponse response = usuarioService.crear(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponse> actualizar(
+            @PathVariable int id,
+            @Valid @RequestBody UsuarioActualizarRequest request) {
+
+        return ResponseEntity.ok(usuarioService.actualizar(id, request));
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<UsuarioResponse> cambiarEstado(
+            @PathVariable int id,
+            @Valid @RequestBody EstadoRequest request) {
+
+        return ResponseEntity.ok(usuarioService.cambiarEstado(id, request.estado()));
+    }
+
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<Void> cambiarPassword(
+            @PathVariable int id,
+            @Valid @RequestBody PasswordRequest request) {
+
+        usuarioService.cambiarPassword(id, request);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/perfil")
