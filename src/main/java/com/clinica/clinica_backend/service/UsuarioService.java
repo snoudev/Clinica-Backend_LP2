@@ -11,6 +11,7 @@ import com.clinica.clinica_backend.entity.Rol;
 import com.clinica.clinica_backend.entity.Usuario;
 import com.clinica.clinica_backend.exception.ConflictoException;
 import com.clinica.clinica_backend.exception.RecursoNoEncontradoException;
+import com.clinica.clinica_backend.exception.SolicitudInvalidaException;
 import com.clinica.clinica_backend.repository.EmpleadoRepository;
 import com.clinica.clinica_backend.repository.RolRepository;
 import com.clinica.clinica_backend.repository.UsuarioRepository;
@@ -27,6 +28,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsuarioService {
 
+	private static final String CARGO_RECEPCIONISTA = "RECEPCIONISTA";
+	private static final String CARGO_ADMINISTRATIVO = "ADMINISTRATIVO";
+	
     private final AuthenticationManager authenticationManager;
     private final UsuarioRepository usuarioRepository;
     private final EmpleadoRepository empleadoRepository;
@@ -89,6 +93,22 @@ public class UsuarioService {
         Empleado empleado = empleadoRepository.findById(request.idEmpleado())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un empleado con ese id."));
 
+        if (!empleado.isEstado()) {
+            throw new SolicitudInvalidaException(
+                    "No se puede crear un usuario para un empleado inactivo."
+            );
+        }
+
+        String nombreCargo = empleado.getCargo().getNombreCargo();
+
+        if (!CARGO_RECEPCIONISTA.equalsIgnoreCase(nombreCargo)
+                && !CARGO_ADMINISTRATIVO.equalsIgnoreCase(nombreCargo)) {
+
+            throw new SolicitudInvalidaException(
+                    "Solo los empleados de recepción o administración pueden tener un usuario."
+            );
+        }
+        
         Rol rol = rolRepository.findById(request.idRol())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un rol con ese id."));
 

@@ -2,11 +2,11 @@ package com.clinica.clinica_backend.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
 
 public record UsuarioActualizarRequest(
-        @Positive(message = "El id del rol debe ser un número positivo")
-        int idRol,
+		@NotNull(message = "El rol es obligatorio")
+		Integer idRol,
 
         @NotBlank(message = "El correo es obligatorio")
         @Email(message = "El correo no tiene un formato válido")
