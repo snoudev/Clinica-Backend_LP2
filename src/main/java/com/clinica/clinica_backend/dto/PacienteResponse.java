@@ -6,6 +6,7 @@ public record PacienteResponse(
         String apellido,
         String dni,
         String telefono,
-        Integer registradoPorUsuario
-) {
-}
+        String nombreUsuarioRegistro,
+        String apellidoUsuarioRegistro,
+        String correoUsuarioRegistro
+) {}

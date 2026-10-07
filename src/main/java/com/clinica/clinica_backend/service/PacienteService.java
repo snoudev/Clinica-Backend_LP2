@@ -29,18 +29,24 @@ public class PacienteService {
 
     public PacienteResponse registrar(PacienteRequest request, String correoUsuario) {
 
-        if (pacienteRepository.existsByDni(request.dni())) {
+        String dni = request.dni().trim();
+
+        if (pacienteRepository.existsByDni(dni)) {
             throw new ConflictoException("Ya existe un paciente con ese DNI.");
         }
 
-        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el usuario autenticado."));
+        Usuario usuario = usuarioRepository.findByCorreo(correoUsuario.trim())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No se encontró el usuario autenticado."
+                ));
 
         Paciente paciente = new Paciente();
-        paciente.setNombre(request.nombre());
-        paciente.setApellido(request.apellido());
-        paciente.setDni(request.dni());
-        paciente.setTelefono(request.telefono());
+        paciente.setNombre(request.nombre().trim());
+        paciente.setApellido(request.apellido().trim());
+        paciente.setDni(dni);
+        paciente.setTelefono(
+                request.telefono() != null ? request.telefono().trim() : null
+        );
         paciente.setRegistradoPorUsuario(usuario);
 
         return aRespuesta(pacienteRepository.save(paciente));
@@ -58,8 +64,11 @@ public class PacienteService {
     }
 
     public PacienteResponse buscarPorDni(String dni) {
-        Paciente paciente = pacienteRepository.findByDni(dni)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No existe un paciente con ese DNI."));
+
+        Paciente paciente = pacienteRepository.findByDni(dni.trim())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe un paciente con ese DNI."
+                ));
 
         return aRespuesta(paciente);
     }
@@ -68,14 +77,18 @@ public class PacienteService {
 
         Paciente paciente = buscarEntidad(id);
 
-        if (pacienteRepository.existsByDniAndIdPacienteNot(request.dni(), id)) {
+        String dni = request.dni().trim();
+
+        if (pacienteRepository.existsByDniAndIdPacienteNot(dni, id)) {
             throw new ConflictoException("Ya existe un paciente con ese DNI.");
         }
 
-        paciente.setNombre(request.nombre());
-        paciente.setApellido(request.apellido());
-        paciente.setDni(request.dni());
-        paciente.setTelefono(request.telefono());
+        paciente.setNombre(request.nombre().trim());
+        paciente.setApellido(request.apellido().trim());
+        paciente.setDni(dni);
+        paciente.setTelefono(
+                request.telefono() != null ? request.telefono().trim() : null
+        );
 
         return aRespuesta(pacienteRepository.save(paciente));
     }
@@ -87,10 +100,14 @@ public class PacienteService {
 
     private PacienteResponse aRespuesta(Paciente paciente) {
 
-        Integer idUsuario = null;
+        String nombreUsuarioRegistro = null;
+        String apellidoUsuarioRegistro = null;
+        String correoUsuarioRegistro = null;
 
         if (paciente.getRegistradoPorUsuario() != null) {
-            idUsuario = paciente.getRegistradoPorUsuario().getIdUsuario();
+            nombreUsuarioRegistro = paciente.getRegistradoPorUsuario().getEmpleado().getNombre();
+            apellidoUsuarioRegistro = paciente.getRegistradoPorUsuario().getEmpleado().getApellido();
+            correoUsuarioRegistro = paciente.getRegistradoPorUsuario().getCorreo();
         }
 
         return new PacienteResponse(
@@ -99,7 +116,9 @@ public class PacienteService {
                 paciente.getApellido(),
                 paciente.getDni(),
                 paciente.getTelefono(),
-                idUsuario
+                nombreUsuarioRegistro,
+                apellidoUsuarioRegistro,
+                correoUsuarioRegistro
         );
     }
 }

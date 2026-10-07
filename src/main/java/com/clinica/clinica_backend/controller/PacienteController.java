@@ -6,6 +6,7 @@ import com.clinica.clinica_backend.service.PacienteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class PacienteController {
         this.pacienteService = pacienteService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'AGENTE_VENTANILLA')")
     @PostMapping
     public ResponseEntity<PacienteResponse> registrar(
             @Valid @RequestBody PacienteRequest request,
@@ -31,24 +33,28 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'AGENTE_VENTANILLA')")
     @GetMapping
     public ResponseEntity<List<PacienteResponse>> listar() {
 
         return ResponseEntity.ok(pacienteService.listar());
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @GetMapping("/{id}")
     public ResponseEntity<PacienteResponse> obtenerPorId(@PathVariable int id) {
 
         return ResponseEntity.ok(pacienteService.obtenerPorId(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'AGENTE_VENTANILLA')")
     @GetMapping("/dni/{dni}")
     public ResponseEntity<PacienteResponse> buscarPorDni(@PathVariable String dni) {
 
         return ResponseEntity.ok(pacienteService.buscarPorDni(dni));
     }
 
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'AGENTE_VENTANILLA')")
     @PutMapping("/{id}")
     public ResponseEntity<PacienteResponse> actualizar(
             @PathVariable int id,
