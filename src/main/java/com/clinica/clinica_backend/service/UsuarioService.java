@@ -56,16 +56,21 @@ public class UsuarioService {
 
     public LoginResponse login(LoginRequest request) {
 
+        String correo = request.getCorreo().trim();
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getCorreo(),
+                        correo,
                         request.getPassword()
                 )
         );
 
-        Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo()).orElseThrow();
+        Usuario usuario = usuarioRepository.findByCorreo(correo).orElseThrow();
 
-        String token = jwtService.generarToken(usuario.getCorreo(), usuario.getRol().getNombreRol());
+        String token = jwtService.generarToken(
+                usuario.getCorreo(),
+                usuario.getRol().getNombreRol()
+        );
 
         return new LoginResponse(
                 usuario.getIdUsuario(),
@@ -112,7 +117,9 @@ public class UsuarioService {
         Rol rol = rolRepository.findById(request.idRol())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un rol con ese id."));
 
-        if (usuarioRepository.existsByCorreo(request.correo())) {
+        String correo = request.correo().trim();
+
+        if (usuarioRepository.existsByCorreo(correo)) {
             throw new ConflictoException("Ya existe un usuario con ese correo.");
         }
 
@@ -138,12 +145,14 @@ public class UsuarioService {
         Rol rol = rolRepository.findById(request.idRol())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe un rol con ese id."));
 
-        if (usuarioRepository.existsByCorreoAndIdUsuarioNot(request.correo(), id)) {
+        String correo = request.correo().trim();
+
+        if (usuarioRepository.existsByCorreoAndIdUsuarioNot(correo, id)) {
             throw new ConflictoException("Ya existe un usuario con ese correo.");
         }
 
         usuario.setRol(rol);
-        usuario.setCorreo(request.correo());
+        usuario.setCorreo(correo);
 
         return aRespuesta(usuarioRepository.save(usuario));
     }

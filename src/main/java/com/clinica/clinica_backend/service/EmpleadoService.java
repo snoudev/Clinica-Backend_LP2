@@ -39,8 +39,11 @@ public class EmpleadoService {
 
 	public EmpleadoResponse registrar(EmpleadoRequest request) {
 
-		if (empleadoRepository.existsByDni(request.dni())) {
-			throw new ConflictoException("Ya existe un empleado con el DNI " + request.dni());
+		String dni = request.dni().trim();
+
+		if (empleadoRepository.existsByDni(dni)) {
+		    throw new ConflictoException(
+		            "Ya existe un empleado con el DNI " + dni);
 		}
 
 		Empleado empleado = new Empleado();
@@ -65,9 +68,11 @@ public class EmpleadoService {
 
 		Empleado empleado = buscarEmpleado(id);
 
-		if (empleadoRepository.existsByDniAndIdEmpleadoNot(request.dni(), id)) {
+		String dni = request.dni().trim();
 
-			throw new ConflictoException("Ya existe otro empleado con el DNI " + request.dni());
+		if (empleadoRepository.existsByDniAndIdEmpleadoNot(dni, id)) {
+		    throw new ConflictoException(
+		            "Ya existe otro empleado con el DNI " + dni);
 		}
 
 		aplicarDatos(empleado, request);
@@ -167,7 +172,7 @@ public class EmpleadoService {
 		empleado.setEspecialidad(especialidad);
 		empleado.setNombre(request.nombre().trim());
 		empleado.setApellido(request.apellido().trim());
-		empleado.setDni(request.dni());
+		empleado.setDni(request.dni().trim());
 		empleado.setTelefono(request.telefono());
 	}
 }

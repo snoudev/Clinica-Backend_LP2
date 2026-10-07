@@ -34,12 +34,18 @@ public class EspecialidadService {
 
     public Especialidad guardar(Especialidad especialidad) {
 
-        if (especialidadRepository.existsByNombre(especialidad.getNombre())) {
+        String nombre = especialidad.getNombre().trim();
+
+        if (especialidadRepository.existsByNombre(nombre)) {
             throw new ConflictoException(
                     "Ya existe una especialidad con ese nombre");
         }
 
-        especialidad.setNombre(especialidad.getNombre().trim());
+        especialidad.setNombre(nombre);
+
+        if (especialidad.getDescripcion() != null) {
+            especialidad.setDescripcion(especialidad.getDescripcion().trim());
+        }
 
         return especialidadRepository.save(especialidad);
     }
@@ -48,15 +54,23 @@ public class EspecialidadService {
 
         Especialidad actual = buscarPorId(id);
 
-        if (!actual.getNombre().equalsIgnoreCase(especialidad.getNombre())
-                && especialidadRepository.existsByNombre(especialidad.getNombre())) {
+        String nombre = especialidad.getNombre().trim();
+
+        if (!actual.getNombre().equalsIgnoreCase(nombre)
+                && especialidadRepository.existsByNombre(nombre)) {
 
             throw new ConflictoException(
                     "Ya existe una especialidad con ese nombre");
         }
 
-        actual.setNombre(especialidad.getNombre().trim());
-        actual.setDescripcion(especialidad.getDescripcion());
+        actual.setNombre(nombre);
+
+        if (especialidad.getDescripcion() != null) {
+            actual.setDescripcion(especialidad.getDescripcion().trim());
+        } else {
+            actual.setDescripcion(null);
+        }
+
         actual.setEstado(especialidad.isEstado());
 
         return especialidadRepository.save(actual);
