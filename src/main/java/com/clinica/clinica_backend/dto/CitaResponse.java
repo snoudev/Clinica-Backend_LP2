@@ -17,10 +17,12 @@ public record CitaResponse(
         String nombreEspecialidad,
 
         LocalDateTime fechaHoraCita,
+        LocalDateTime fechaRegistro,
 
         String estado,
 
         String nombreUsuarioRegistro,
-        String apellidoUsuarioRegistro
+        String apellidoUsuarioRegistro,
+        String correoUsuarioRegistro
 ) {
 }
