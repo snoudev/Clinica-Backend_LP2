@@ -130,7 +130,7 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setEmpleado(empleado);
         usuario.setRol(rol);
-        usuario.setCorreo(request.correo());
+        usuario.setCorreo(correo);
         usuario.setContrasenaHash(passwordEncoder.encode(request.password()));
         usuario.setEstado(true);
         usuario.setCreadoEn(LocalDateTime.now());

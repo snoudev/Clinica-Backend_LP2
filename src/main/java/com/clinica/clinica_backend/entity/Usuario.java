@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Table(name = "tb_usuario")
 public class Usuario {
@@ -29,8 +31,9 @@ public class Usuario {
 
     @Column(name = "estado")
     private boolean estado;
-
-    @Column(name = "creado_en")
+    
+    @CreationTimestamp
+    @Column(name = "creado_en", updatable = false)
     private LocalDateTime creadoEn;
 
     public Usuario() {
