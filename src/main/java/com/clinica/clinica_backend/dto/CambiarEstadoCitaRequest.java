@@ -1,10 +1,8 @@
 package com.clinica.clinica_backend.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record CambiarEstadoCitaRequest(
-
-        @NotNull(message = "El estado es obligatorio")
-        Integer idEstadoCita
-) {
-}
+        @NotBlank(message = "El estado es obligatorio")
+        String nombreEstado
+) {}

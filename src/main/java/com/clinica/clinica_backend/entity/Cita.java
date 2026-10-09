@@ -1,6 +1,7 @@
 package com.clinica.clinica_backend.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +33,8 @@ public class Cita {
     @Column(name = "fecha_hora_cita")
     private LocalDateTime fechaHoraCita;
 
-    @Column(name = "fecha_registro")
+    @CreationTimestamp
+    @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
     public Cita() {
