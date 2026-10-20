@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Table(name = "tb_usuario")
 public class Usuario {
@@ -25,24 +27,25 @@ public class Usuario {
     private String correo;
 
     @Column(name = "password_hash")
-    private String passwordHash;
+    private String contrasenaHash;
 
     @Column(name = "estado")
     private boolean estado;
-
-    @Column(name = "creado_en")
+    
+    @CreationTimestamp
+    @Column(name = "creado_en", updatable = false)
     private LocalDateTime creadoEn;
 
     public Usuario() {
     }
 
-    public Usuario(int idUsuario, Empleado empleado, Rol rol, String correo, String passwordHash, boolean estado,
+    public Usuario(int idUsuario, Empleado empleado, Rol rol, String correo, String contrasenaHash, boolean estado,
             LocalDateTime creadoEn) {
         this.idUsuario = idUsuario;
         this.empleado = empleado;
         this.rol = rol;
         this.correo = correo;
-        this.passwordHash = passwordHash;
+        this.contrasenaHash = contrasenaHash;
         this.estado = estado;
         this.creadoEn = creadoEn;
     }
@@ -79,12 +82,12 @@ public class Usuario {
         this.correo = correo;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getContrasenaHash() {
+        return contrasenaHash;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setContrasenaHash(String contrasenaHash) {
+        this.contrasenaHash = contrasenaHash;
     }
 
     public boolean isEstado() {
